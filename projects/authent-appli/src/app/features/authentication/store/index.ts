@@ -28,7 +28,7 @@ export const AuthenticationStore = signalStore(
   { providedIn: 'root'},
   withState(initialValue),
   withComputed(store => ({
-    isAuthenticated: computed(() => store.user() && store.user()?.surname)
+    isAuthenticated: computed(() => store.user() !== undefined)
   })),
   withMethods((store, infra = inject(AuthenticationInfrastructure)) => (
     {

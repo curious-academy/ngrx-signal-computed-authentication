@@ -29,4 +29,8 @@ export class AuthenticationApplication {
   get isLoading(): Signal<boolean> {
     return this.store.isLoading;
   }
+
+  get isAuthenticated(): Signal<boolean> {
+    return this.store.isAuthenticated;
+  }
 }
