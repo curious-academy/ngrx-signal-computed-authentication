@@ -1,7 +1,10 @@
 import { AuthenticationUser } from "../models/authentication-user";
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, tap } from "rxjs";
+import { concatMap, pipe, tap } from "rxjs";
+import { AuthenticationInfrastructure } from "../services/authentication.infrastructure";
+import { inject } from "@angular/core";
+import { tapResponse } from '@ngrx/operators';
 
 // 1. Etat à créer
 export interface AuthenticationState {
@@ -24,11 +27,19 @@ const initialValue: AuthenticationState = {
 export const AuthenticationStore = signalStore(
   { providedIn: 'root'},
   withState(initialValue),
-  withMethods((store) => (
+  withMethods((store, infra = inject(AuthenticationInfrastructure)) => (
     {
       logIn: rxMethod<AuthenticateType>(
         pipe(
-          tap(() => patchState(store, { isLoading: true }))
+          tap(() => patchState(store, { isLoading: true })),
+          concatMap(input => {
+            return infra.login(input.login, input.password).pipe(
+              tapResponse({
+                next: user => patchState(store, { isLoading: false, user }),
+                error: () => patchState(store, { isLoading: false })
+              })
+            )
+          })
         )
       )
     }
