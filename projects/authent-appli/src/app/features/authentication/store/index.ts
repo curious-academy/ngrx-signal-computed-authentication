@@ -1,9 +1,9 @@
 import { AuthenticationUser } from "../models/authentication-user";
-import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { concatMap, pipe, tap } from "rxjs";
 import { AuthenticationInfrastructure } from "../services/authentication.infrastructure";
-import { inject } from "@angular/core";
+import { computed, inject } from "@angular/core";
 import { tapResponse } from '@ngrx/operators';
 
 // 1. Etat à créer
@@ -27,6 +27,9 @@ const initialValue: AuthenticationState = {
 export const AuthenticationStore = signalStore(
   { providedIn: 'root'},
   withState(initialValue),
+  withComputed(store => ({
+    isAuthenticated: computed(() => store.user())
+  })),
   withMethods((store, infra = inject(AuthenticationInfrastructure)) => (
     {
       logIn: rxMethod<AuthenticateType>(
